@@ -55,11 +55,11 @@ public class QingConfigServiceImpl implements IQingConfigService {
                 builder.append(name).append("=").append(val).append("&");
             }
         }
+
         String toSign = builder.deleteCharAt(builder.length() - 1).toString();
 
         HMac mac = new HMac(HmacAlgorithm.HmacSHA256, getQinAppSecretKey().getBytes());
         String encodeSignature = Base64.encode(mac.digest(toSign));
-
         return encodeSignature.equals(reqSignature);
     }
 }

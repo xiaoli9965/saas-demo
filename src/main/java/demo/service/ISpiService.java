@@ -1,6 +1,7 @@
 package demo.service;
 
 import demo.model.QingResp;
+import demo.model.vo.QingRequest;
 import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,21 +11,18 @@ public interface ISpiService {
     /**
      * 创建实例
      *
-     * @return
      */
-    ResponseEntity<QingResp> create(HttpServletRequest req);
+    ResponseEntity<QingResp> create(QingRequest req);
 
     /**
      * 续费实例
      *
-     * @return
      */
-    ResponseEntity<QingResp>  renew(HttpServletRequest req);
+    ResponseEntity<QingResp>  renew(QingRequest req);
 
     /**
      * 升级实例
      *
-     * @return
      */
-    ResponseEntity<QingResp>  upgread(HttpServletRequest req);
+    ResponseEntity<QingResp>  upgrade(QingRequest req);
 }

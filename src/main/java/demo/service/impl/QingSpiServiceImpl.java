@@ -1,21 +1,19 @@
 package demo.service.impl;
 
+import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.RandomUtil;
-import com.google.gson.Gson;
 import demo.model.QingResp;
+import demo.model.vo.QingAppInfo;
 import demo.model.vo.QingCreateVo;
-import demo.model.vo.QingStatusVo;
-import demo.model.vo.QingUserInfo;
-import demo.service.IQingConfigService;
+import demo.model.vo.QingRequest;
+import demo.model.vo.QingInstanceInfo;
 import demo.service.ISpiService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.UUID;
+import java.util.HashMap;
 
 /**
  * @author Alex
@@ -26,33 +24,42 @@ public class QingSpiServiceImpl implements ISpiService {
 
 
     @Override
-    public ResponseEntity<QingResp> create(HttpServletRequest req) {
-        log.info("用户开通: {}", new Gson().toJson(req.getParameterMap()));
+    public ResponseEntity<QingResp> create(QingRequest req) {
+        log.info("用户开通: {}", req);
+        log.info("套餐名: {} >>> {}", req.getSpec(), Base64.decodeStr(req.getSpec()));
 
+        if (req.getErr()) {
+            return new ResponseEntity<>(QingResp.error("开通失败"), HttpStatus.OK);
+        }
         QingCreateVo create = new QingCreateVo();
         create.setInstanceId("i-" + RandomUtil.randomString(8));
-
-        QingUserInfo userInfo = new QingUserInfo()
-                .setAdminUrl("http://admin.saas.com")
-                .setAuthUrl("http://auth.saas.com")
-                .setFrontEndUrl("http://console.saas.com")
-                .setUsername("saas-" + RandomUtil.randomString(8))
-                .setPassword(RandomUtil.randomString(12));
-
-        create.setUserInfo(userInfo);
+        create.setSuccess(true);
+        QingAppInfo appInfo = new QingAppInfo();
+        appInfo.setFrontEnd(new QingInstanceInfo()
+                .setUrl("https://console.saas.com")
+                .setUsername("fn-" + RandomUtil.randomString(8))
+                .setPassword(RandomUtil.randomString(8)
+                ));
+        appInfo.setAdmin(new QingInstanceInfo()
+                .setUrl("https://admin.saas.com")
+                .setUsername("ad-" + RandomUtil.randomString(10))
+                .setPassword(RandomUtil.randomString(10)
+                ));
+        appInfo.setAuthUrl("https://auth.saas.com");
+        create.setAppInfo(appInfo);
         return new ResponseEntity<>(create, HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<QingResp> renew(HttpServletRequest req) {
-        log.info("用户续费: {}", new Gson().toJson(req.getParameterMap()));
-        return new ResponseEntity<>(new QingStatusVo(true), HttpStatus.OK);
+    public ResponseEntity<QingResp> renew(QingRequest req) {
+        log.info("用户续费: {}", req);
+        return new ResponseEntity<>(QingResp.ok(), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<QingResp> upgread(HttpServletRequest req) {
-        log.info("用户升级: {}", new Gson().toJson(req.getParameterMap()));
-        return new ResponseEntity<>(new QingStatusVo(true), HttpStatus.OK);
+    public ResponseEntity<QingResp> upgrade(QingRequest req) {
+        log.info("用户升级: {}", req);
+        return new ResponseEntity<>(QingResp.ok(), HttpStatus.OK);
     }
 
 }

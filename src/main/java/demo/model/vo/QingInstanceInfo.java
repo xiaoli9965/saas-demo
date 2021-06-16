@@ -3,18 +3,17 @@ package demo.model.vo;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+/**
+ * @author Alex
+ */
 @Accessors(chain = true)
 @Data
-public class QingUserInfo {
+public class QingInstanceInfo {
 
     /**
-     * 前台地址
+     * 访问地址
      */
-    private String frontEndUrl;
-    /**
-     * 管理地址
-     */
-    private String adminUrl;
+    private String url;
     /**
      * 分配的账号
      */
@@ -23,9 +22,6 @@ public class QingUserInfo {
      * 分配的密码
      */
     private String password;
-    /**
-     * 免登授权接口
-     */
-    private String authUrl;
+
 
 }
