@@ -12,5 +12,7 @@ public class Constants {
     public static final String ACTION_RENEW = "RenewAppInstance";
     public static final String ACTION_UPGRADE = "UpgradeAppInstance";
 
+    public static final Integer MESSAGE_VALIDITY_PERIOD = 3000;
+    public static final String URL_ENCODE = "UTF-8";
 
 }

@@ -1,6 +1,8 @@
 package demo.service.impl;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.HMac;
 import cn.hutool.crypto.digest.HmacAlgorithm;
 import demo.common.Constants;
@@ -8,6 +10,10 @@ import demo.service.IQingConfigService;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,13 +23,13 @@ import java.util.stream.Collectors;
  */
 @Service
 public class QingConfigServiceImpl implements IQingConfigService {
-    private static final String QING_SECRET_APP_KEY = "2UNHjKQE9u6A4np4kI++o5iXPcn3cA6yZjDEdHN3iXfDFwCRaKtCQHSLT9HdeF+1";
+    private static final String QING_APP_KEY = "2UNHjKQE9u6A4np4kI++o5iXPcn3cA6yZjDEdHN3iXfDFwCRaKtCQHSLT9HdeF+1";
 
     @Override
     public String getQinAppSecretKey() {
         // 1. 从数据库加载 QING_SECRET_APP_KEY
         // 2. 返回
-        return QING_SECRET_APP_KEY;
+        return QING_APP_KEY;
     }
 
     @Override
@@ -48,18 +54,26 @@ public class QingConfigServiceImpl implements IQingConfigService {
                 .sorted()
                 .collect(Collectors.toList());
 
-        // 拼接签名串
-        StringBuilder builder = new StringBuilder(req.getMethod()).append("\n");
+        ArrayList<String> pairs = new ArrayList<>();
         for (String name : paramsNames) {
             for (String val : parameterMap.get(name)) {
-                builder.append(name).append("=").append(val).append("&");
+                try {
+                    pairs.add(name + "=" + URLEncoder.encode(val,  Constants.URL_ENCODE));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
             }
         }
-
-        String toSign = builder.deleteCharAt(builder.length() - 1).toString();
+        System.out.println(pairs);
+        // 拼接签名串
+        String toSign = req.getMethod() + "\n" + CollectionUtil.join(pairs, "&");
+//        System.out.println(toSign);
 
         HMac mac = new HMac(HmacAlgorithm.HmacSHA256, getQinAppSecretKey().getBytes());
         String encodeSignature = Base64.encode(mac.digest(toSign));
         return encodeSignature.equals(reqSignature);
     }
+
 }
+
+
